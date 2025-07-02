@@ -1,0 +1,6 @@
+@LearnAvaloniaApi_HostAddress = http://localhost:5144
+
+GET {{LearnAvaloniaApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
