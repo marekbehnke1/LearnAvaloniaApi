@@ -23,6 +23,6 @@ namespace LearnAvaloniaApi.Models
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
         public int UserId { get; set; }
-        public int ProjectId { get; set; }
+        public int? ProjectId { get; set; }
     }
 }

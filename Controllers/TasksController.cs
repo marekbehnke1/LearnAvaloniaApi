@@ -1,0 +1,140 @@
+﻿using System.Runtime.InteropServices;
+using LearnAvaloniaApi.Data;
+using LearnAvaloniaApi.Models;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+
+namespace LearnAvaloniaApi.Controllers
+{
+    [ApiController]
+    [Route("api/[controller]")]
+    public class TasksController : ControllerBase
+    {
+        private readonly ApiDbContext _context;
+
+
+        public TasksController(ApiDbContext context)
+        {
+            _context = context;
+        }
+
+        // Return all tasks
+        [HttpGet]
+        public async Task<ActionResult<List<ApiTask>>> GetAllTasks()
+        {
+            var tasks = await _context.Tasks.ToListAsync();
+            return Ok(tasks);
+        }
+
+        // Return single task by Id.
+        [HttpGet("{id}")]
+        public async Task<ActionResult<ApiTask>> GetTask(int id)
+        {
+            var task = await _context.Tasks.FindAsync(id);
+            
+            if (task == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(task);
+        }
+
+        // Create a new task
+        [HttpPost]
+        public async Task<ActionResult<ApiTask>> CreateTask(ApiTask task)
+        {
+            _context.Tasks.Add(task);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction(nameof(GetTask), new { id = task.Id }, task);
+        }
+
+        // TODO - PUT update task
+        [HttpPut("{id}")]
+        public async Task <ActionResult<ApiTask>> UpdateTask(int id, ApiTask task)
+        {
+            if (id != task.Id)
+            {
+                return BadRequest("Id mismatch!");
+            }
+
+            var dbTask = await _context.Tasks.FindAsync(task.Id);
+            if (dbTask == null)
+            {
+                return NotFound();
+            }
+
+            dbTask.Title = task.Title; 
+            dbTask.Description = task.Description;
+            dbTask.Priority = task.Priority;
+            dbTask.DueDate = task.DueDate;
+            dbTask.IsCollapsed = task.IsCollapsed;
+            dbTask.ProjectId = task.ProjectId;
+            dbTask.UpdatedAt = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
+            // No content to return - update succesfull
+            return NoContent();
+        }
+
+        // TODO -  DELETE task
+        [HttpDelete("{id}")]
+        public async Task<ActionResult> DeleteTask(int id)
+        {
+            var task = await _context.Tasks.FindAsync(id);              
+            
+            if (task == null)
+            {
+                return NotFound();
+            }
+
+            _context.Tasks.Remove(task);
+            await _context.SaveChangesAsync();
+            // This returns a no content return - appropriate when deleting
+            return NoContent();
+        }
+
+
+        
+        /// ////////----------TEST METHODS ------------////////////////////////
+        
+        [HttpGet("test")]  // ← GET api/tasks/test
+        public async Task<ActionResult<ApiTask>> CreateTestTask()
+        {
+            var testTask = new ApiTask
+            {
+                Title = "Test Task",
+                Description = "Created via API",
+                Priority = 1,
+                UserId = 1,  // We'll fix user relationships later
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            };
+
+            _context.Tasks.Add(testTask);
+            await _context.SaveChangesAsync();
+
+            return Ok(testTask);
+        }
+
+        [HttpGet("create-test-user")]
+        public async Task<ActionResult<User>> CreateTestUser()
+        {
+            var testUser = new User
+            {
+                FirstName = "Test",
+                LastName = "User",
+                Email = "test@example.com",
+                PasswordHash = "temporary",  // We'll do proper hashing later
+                CreatedAt = DateTime.UtcNow
+            };
+
+            _context.Users.Add(testUser);
+            await _context.SaveChangesAsync();
+
+            return Ok(testUser);
+        }
+    }
+
+}
