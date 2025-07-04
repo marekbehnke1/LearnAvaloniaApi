@@ -4,14 +4,15 @@ namespace LearnAvaloniaApi.Models
 {
     public class ApiTask
     {
+        [Required]
         public int Id { get; set; }
 
         [Required]
         [MaxLength(200)]
-        public string Title { get; set; } = string.Empty;
+        public string? Title { get; set; } = string.Empty;
 
         [MaxLength(1000)]
-        public string Description { get; set; } = string.Empty;
+        public string? Description { get; set; } = string.Empty;
 
         [Required]
         public int Priority { get; set; } = 0;
@@ -24,5 +25,7 @@ namespace LearnAvaloniaApi.Models
 
         public int UserId { get; set; }
         public int? ProjectId { get; set; }
+
+        public virtual User user { get; set; } = null!;
     }
 }

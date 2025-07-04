@@ -45,6 +45,7 @@ namespace LearnAvaloniaApi.Controllers
         public async Task<ActionResult<ApiTask>> CreateTask(ApiTask task)
         {
             _context.Tasks.Add(task);
+            System.Diagnostics.Debug.WriteLine($"Adding: {task}");
             await _context.SaveChangesAsync();
 
             return CreatedAtAction(nameof(GetTask), new { id = task.Id }, task);
