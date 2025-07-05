@@ -16,12 +16,10 @@ namespace LearnAvaloniaApi.Models
         public DateTime DateCreated { get; set; } = DateTime.UtcNow;
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
-        // this might break stuff till i get user things sorted..
         [Required]
         public int UserId { get; set; }
 
         // Navigation properties
-        //public virtual User User { get; set; } = null!;
         public virtual ICollection<ApiTask> Tasks { get; set; } = new List<ApiTask>();
 
     }

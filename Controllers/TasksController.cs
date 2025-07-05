@@ -1,11 +1,14 @@
 ﻿using System.Runtime.InteropServices;
+using System.Security.Claims;
 using LearnAvaloniaApi.Data;
 using LearnAvaloniaApi.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace LearnAvaloniaApi.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class TasksController : ControllerBase
@@ -19,10 +22,21 @@ namespace LearnAvaloniaApi.Controllers
         }
 
         // Return all tasks
+        // TODO: Modify to return tasks only for the current user
         [HttpGet]
         public async Task<ActionResult<List<ApiTask>>> GetAllTasks()
         {
-            var tasks = await _context.Tasks.ToListAsync();
+            // Check for valid token and get Id
+            int? userId = GetCurrentUserId();
+            if (userId == null)
+            {
+                return Unauthorized("Invalid user token");
+            }
+
+            var tasks = await _context.Tasks
+                .Where(t => t.UserId == userId)
+                .ToListAsync();
+            
             return Ok(tasks);
         }
 
@@ -30,12 +44,25 @@ namespace LearnAvaloniaApi.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<ApiTask>> GetTask(int id)
         {
+            // Check for valid token and get Id
+            int? userId = GetCurrentUserId();
+            if (userId == null)
+            {
+                return Unauthorized("Invalid user token");
+            }
+
             var task = await _context.Tasks.FindAsync(id);
-            
+
             if (task == null)
             {
                 return NotFound();
             }
+
+            if (userId != task.UserId)
+            {
+                return Unauthorized("Not authorized");
+            }
+            
 
             return Ok(task);
         }
@@ -44,8 +71,16 @@ namespace LearnAvaloniaApi.Controllers
         [HttpPost]
         public async Task<ActionResult<ApiTask>> CreateTask(ApiTask task)
         {
+            // Check for valid token and get Id
+            int? userId = GetCurrentUserId();
+            if (userId == null)
+            {
+                return Unauthorized("Invalid user token");
+            }
+
+            task.UserId = (int)userId;
+
             _context.Tasks.Add(task);
-            System.Diagnostics.Debug.WriteLine($"Adding: {task}");
             await _context.SaveChangesAsync();
 
             return CreatedAtAction(nameof(GetTask), new { id = task.Id }, task);
@@ -55,11 +90,26 @@ namespace LearnAvaloniaApi.Controllers
         [HttpPut("{id}")]
         public async Task <ActionResult<ApiTask>> UpdateTask(int id, ApiTask task)
         {
+            // Check for valid token and get Id
+            int? userId = GetCurrentUserId();
+            if (userId == null)
+            {
+                return Unauthorized("Invalid user token");
+            }
+
+            // Check if token is owner of task
+            if (task.UserId != userId)
+            {
+                return Unauthorized("Unauthorized access");
+            }
+
+            // check task ids match
             if (id != task.Id)
             {
                 return BadRequest("Id mismatch!");
             }
 
+            //find task in db
             var dbTask = await _context.Tasks.FindAsync(task.Id);
             if (dbTask == null)
             {
@@ -83,8 +133,20 @@ namespace LearnAvaloniaApi.Controllers
         [HttpDelete("{id}")]
         public async Task<ActionResult> DeleteTask(int id)
         {
+            int? userId = GetCurrentUserId();
+
+            if (userId == null)
+            {
+                return Unauthorized("Invalid user token");
+            }
+
             var task = await _context.Tasks.FindAsync(id);              
             
+            if (task?.UserId != userId)
+            {
+                return Unauthorized("Unauthorized access");
+            }
+
             if (task == null)
             {
                 return NotFound();
@@ -95,11 +157,19 @@ namespace LearnAvaloniaApi.Controllers
             // This returns a no content return - appropriate when deleting
             return NoContent();
         }
+        // Helper method to retrieve userId
+        private int? GetCurrentUserId()
+        {
+            var userIdClaim = HttpContext.User.Claims
+                .FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?
+                .Value;
+
+            return int.TryParse (userIdClaim, out int userId) ? userId : null;
+        }
 
 
-        
         /// ////////----------TEST METHODS ------------////////////////////////
-        
+        [AllowAnonymous]
         [HttpGet("test")]  // ← GET api/tasks/test
         public async Task<ActionResult<ApiTask>> CreateTestTask()
         {
@@ -119,6 +189,7 @@ namespace LearnAvaloniaApi.Controllers
             return Ok(testTask);
         }
 
+        [AllowAnonymous]
         [HttpGet("create-test-user")]
         public async Task<ActionResult<User>> CreateTestUser()
         {
@@ -137,6 +208,7 @@ namespace LearnAvaloniaApi.Controllers
             return Ok(testUser);
         }
 
+        [AllowAnonymous]
         [HttpGet("get-users")]
         public async Task <ActionResult<List<User>>> GetUsers()
         {
@@ -146,6 +218,7 @@ namespace LearnAvaloniaApi.Controllers
         }
 
         // debugging endpoint
+        [AllowAnonymous]
         [HttpGet("debug")]
         public async Task<ActionResult> DebugTasks()
         {
