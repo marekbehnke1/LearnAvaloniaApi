@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using LearnAvaloniaApi.Data;
+using LearnAvaloniaApi.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,6 +8,11 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+
+// Adds scope for the password service
+builder.Services.AddScoped<IPasswordService, PasswordService>();
+// Adds scope for the JWT service
+builder.Services.AddScoped<IJwtService, JwtService>();
 
 
 // Adding the dbcontext service

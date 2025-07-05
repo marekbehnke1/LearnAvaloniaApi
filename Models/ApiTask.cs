@@ -4,7 +4,6 @@ namespace LearnAvaloniaApi.Models
 {
     public class ApiTask
     {
-        [Required]
         public int Id { get; set; }
 
         [Required]
@@ -27,7 +26,7 @@ namespace LearnAvaloniaApi.Models
         public int UserId { get; set; }
         public int? ProjectId { get; set; }
 
-        public virtual User User { get; set; } = null!;
-        public virtual ApiProject? Project { get; set; }
-    }
+        //public virtual User User { get; set; } = null!;
+        //public virtual ApiProject? Project { get; set; }
+    }   
 }

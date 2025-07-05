@@ -136,6 +136,30 @@ namespace LearnAvaloniaApi.Controllers
 
             return Ok(testUser);
         }
+
+        [HttpGet("get-users")]
+        public async Task <ActionResult<List<User>>> GetUsers()
+        {
+            var users = await _context.Users.ToListAsync();
+
+            return users;
+        }
+
+        // debugging endpoint
+        [HttpGet("debug")]
+        public async Task<ActionResult> DebugTasks()
+        {
+            var taskCount = await _context.Tasks.CountAsync();
+            var userCount = await _context.Users.CountAsync();
+            var projectCount = await _context.Projects.CountAsync();
+
+            return Ok(new
+            {
+                TaskCount = taskCount,
+                UserCount = userCount,
+                ProjectCount = projectCount
+            });
+        }
     }
 
 }

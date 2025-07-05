@@ -42,7 +42,7 @@ namespace LearnAvaloniaApi.Data
             });
             // Task -> Project
             modelBuilder.Entity<ApiTask>()
-                .HasOne(x => x.Project)
+                .HasOne<ApiProject>()
 
                 // Configure the navigation property for tasks
                 .WithMany(x => x.Tasks)
@@ -51,7 +51,7 @@ namespace LearnAvaloniaApi.Data
 
             // Task -> User
             modelBuilder.Entity<ApiTask>()
-                .HasOne(x => x.User)
+                .HasOne<User>()
                 // This is what connects the navigation properties to the data
                 .WithMany(x => x.Tasks)
 
@@ -78,7 +78,7 @@ namespace LearnAvaloniaApi.Data
             });
             // Project -> User 
             modelBuilder.Entity<ApiProject>()
-                .HasOne(x => x.User)
+                .HasOne<User>()
                 // This is setting the navigations property for projects
                 .WithMany(x => x.Projects)
                 .HasForeignKey(x => x.UserId)
