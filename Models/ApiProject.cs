@@ -22,8 +22,8 @@ namespace LearnAvaloniaApi.Models
         public int UserId { get; set; }
 
         // Navigation properties
-        public virtual User user { get; set; } = null!;
-        public virtual ICollection<ApiTask> tasks { get; set; } = new List<ApiTask>();
+        public virtual User User { get; set; } = null!;
+        public virtual ICollection<ApiTask> Tasks { get; set; } = new List<ApiTask>();
 
     }
 }

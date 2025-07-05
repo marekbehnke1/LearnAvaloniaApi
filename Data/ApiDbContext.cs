@@ -15,26 +15,6 @@ namespace LearnAvaloniaApi.Data
 
             // This is setting the table columns
             // Essentially saying our table made from the user entity will have these columns..
-            modelBuilder.Entity<User>(entity =>
-            {
-                entity.HasKey(x => x.Id);
-                entity.Property(x => x.FirstName)
-                    .IsRequired();
-
-                entity.Property(x => x.LastName)
-                    .IsRequired();
-
-                entity.Property(x => x.Email)
-                    .IsRequired();
-
-                entity.Property(x => x.PasswordHash)
-                    .IsRequired();
-
-                entity.Property(x => x.CreatedAt);
-                entity.Property(x => x.LastLogin);
-
-                
-            });
 
             // Setting the properties for the Tasks table
             modelBuilder.Entity<ApiTask>(entity =>
@@ -45,7 +25,6 @@ namespace LearnAvaloniaApi.Data
                     .HasMaxLength(200);
 
                 entity.Property(x => x.Description)
-                    .IsRequired()
                     .HasMaxLength(1000);
 
                 entity.Property(x => x.Priority)
@@ -58,13 +37,25 @@ namespace LearnAvaloniaApi.Data
                 entity.Property(x => x.CreatedAt);
                 entity.Property(x => x.UpdatedAt);
                 entity.Property(x => x.ProjectId);
-                entity.Property(x => x.UserId);
+                entity.Property(x => x.UserId)
+                    .IsRequired();
             });
-            // Set the relationship that ApiTask has
+            // Task -> Project
             modelBuilder.Entity<ApiTask>()
-                .HasOne<ApiProject>()
-                .WithMany()
+                .HasOne(x => x.Project)
+
+                // Configure the navigation property for tasks
+                .WithMany(x => x.Tasks)
                 .HasForeignKey(x => x.ProjectId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Task -> User
+            modelBuilder.Entity<ApiTask>()
+                .HasOne(x => x.User)
+                // This is what connects the navigation properties to the data
+                .WithMany(x => x.Tasks)
+
+                .HasForeignKey(x => x.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
             
 
@@ -85,12 +76,52 @@ namespace LearnAvaloniaApi.Data
                 entity.Property(x => x.UserId)
                     .IsRequired();
             });
-            // Set the relationship that ApiProject has
+            // Project -> User 
             modelBuilder.Entity<ApiProject>()
-                .HasOne<User>()
-                .WithMany()
+                .HasOne(x => x.User)
+                // This is setting the navigations property for projects
+                .WithMany(x => x.Projects)
                 .HasForeignKey(x => x.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            // Set properties for the user table
+            modelBuilder.Entity<User>(entity =>
+            {  
+                entity.HasKey(x => x.Id);
+                entity.Property(x => x.FirstName)
+                    .IsRequired()
+                    .HasMaxLength(50);
+
+                entity.Property(x => x.LastName)
+                    .IsRequired()
+                    .HasMaxLength(50);
+
+                entity.Property(x => x.Email)
+                    .IsRequired()
+                    .HasMaxLength(255);
+                // Ensures that we don't get duplicate accounts
+                entity.HasIndex(x => x.Email)
+                    .IsUnique();
+
+                entity.Property(x => x.PasswordHash)
+                    .IsRequired()
+                    .HasMaxLength(500);
+
+                // Security & Auditing
+                entity.Property(x => x.CreatedAt);
+                entity.Property(x => x.UpdatedAt);
+                entity.Property(x => x.LastLogin);
+
+                //Account Management
+                entity.Property(x => x.EmailConfirmed);
+                entity.Property(x => x.IsActive);
+
+                // Security Tracking
+                entity.Property(x => x.FailedLoginAttempts);
+                entity.Property(x => x.LockoutEnd);
+
+                // Navigation Properties
+            });
         }
 
         // This uses the constructor from the base class 

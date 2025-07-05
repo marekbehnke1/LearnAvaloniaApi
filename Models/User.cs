@@ -32,7 +32,7 @@ namespace LearnAvaloniaApi.Models
         public bool IsActive { get; set; } = true;
         public bool EmailConfirmed { get; set; } = false;
 
-        // Optional: Security tracking
+        // Security tracking
         public int FailedLoginAttempts { get; set; } = 0;
         public DateTime? LockoutEnd { get; set; }
 

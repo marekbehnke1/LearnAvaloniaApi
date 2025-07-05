@@ -9,7 +9,7 @@ namespace LearnAvaloniaApi.Models
 
         [Required]
         [MaxLength(200)]
-        public string? Title { get; set; } = string.Empty;
+        public string Title { get; set; } = string.Empty;
 
         [MaxLength(1000)]
         public string? Description { get; set; } = string.Empty;
@@ -23,9 +23,11 @@ namespace LearnAvaloniaApi.Models
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
+        [Required]
         public int UserId { get; set; }
         public int? ProjectId { get; set; }
 
-        public virtual User user { get; set; } = null!;
+        public virtual User User { get; set; } = null!;
+        public virtual ApiProject? Project { get; set; }
     }
 }
