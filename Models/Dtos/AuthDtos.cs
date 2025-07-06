@@ -35,6 +35,7 @@ namespace LearnAvaloniaApi.Models.Dtos
     // Object which carries the server's authorisation response
     public class AuthResponse
     {
+        public bool Success { get; set; }
         public string Token { get; set; } = string.Empty;
         public string Message {  get; set; } = string.Empty;
         public UserDto User { get; set; } = null!;

@@ -57,6 +57,7 @@ namespace LearnAvaloniaApi.Controllers
             // Return the authresponse containing the token and all the user info
             return Ok(new AuthResponse
             {
+                Success = true,
                 Token = token,
                 Message = "Succesfull Registration",
                 User = new UserDto
@@ -98,6 +99,7 @@ namespace LearnAvaloniaApi.Controllers
             // return auth response
             return Ok(new AuthResponse
             {
+                Success = true,
                 Token = token,
                 Message = "Login Succesfull",
                 User = new UserDto
