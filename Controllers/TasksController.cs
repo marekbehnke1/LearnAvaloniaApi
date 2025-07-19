@@ -97,24 +97,28 @@ namespace LearnAvaloniaApi.Controllers
                 return Unauthorized("Invalid user token");
             }
 
-            // Check if token is owner of task
-            if (task.UserId != userId)
-            {
-                return Unauthorized("Unauthorized access");
-            }
-
             // check task ids match
             if (id != task.Id)
             {
                 return BadRequest("Id mismatch!");
             }
 
-            //find task in db
-            var dbTask = await _context.Tasks.FindAsync(task.Id);
+            var dbTask = await _context.Tasks.FindAsync(id);
             if (dbTask == null)
             {
                 return NotFound();
             }
+
+            if (dbTask.UserId != userId)
+            {
+                return Unauthorized("Unauthorized access");
+            }
+
+            //// Check if token is owner of task
+            //if (task.UserId != userId)
+            //{
+            //    return Unauthorized("Unauthorized access");
+            //}
 
             dbTask.Title = task.Title; 
             dbTask.Description = task.Description;

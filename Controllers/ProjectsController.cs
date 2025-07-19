@@ -86,11 +86,6 @@ namespace LearnAvaloniaApi.Controllers
                 return Unauthorized("Invalid user token");
             }
 
-            if (userId != project.UserId)
-            {
-                return Unauthorized("Not Authorized");
-            }
-
             if (id != project.Id)
             {
                 return BadRequest("Id mismatch");
@@ -100,6 +95,11 @@ namespace LearnAvaloniaApi.Controllers
             if (dbProject == null)
             {
                 return NotFound();
+            }
+
+            if (dbProject.UserId != userId)
+            {
+                return Unauthorized("Unauthorized access");
             }
 
             dbProject.Name = project.Name;
